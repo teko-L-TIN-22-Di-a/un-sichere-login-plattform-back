@@ -37,4 +37,8 @@ project.fragment.lock.json
 *.local.json
 appsettings.Development.json
 appsettings.Local.json
+appsettings.Production.json
 .env
+
+# NEVER COMMIT THESE SECRET FILES!
+# Use appsettings.Local.json for your real credentials

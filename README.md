@@ -1,8 +1,54 @@
-# Azure AD Authentication Backend
+# 🔐 Azure AD Authentication Backend
 
-## 🔐 Overview
+A modern .NET 8 backend API with **database-free Azure AD authentication**, user registration, and rate limiting.
 
-This project is a .NET 8 backend API that implements **Azure AD authentication** using the Resource Owner Password Credentials (ROPC) flow. The API is **completely stateless** and requires **no database** - all user data comes directly from Azure AD and Microsoft Graph.
+## ✨ Features
+
+- 🔐 **Azure AD Authentication** - ROPC flow for username/password login
+- 👥 **User Registration** - Create users directly in Azure AD via Microsoft Graph
+- 🛡️ **Rate Limiting** - 5 registrations per IP per hour
+- 🏥 **Health Checks** - API status and configuration validation
+- 🚫 **No Database** - Completely stateless, all data in Azure AD
+- 🔒 **Secure** - No secrets in Git, proper JWT validation
+
+## 🚀 Quick Start
+
+**New here?** Start with [**SETUP.md**](SETUP.md) for step-by-step instructions.
+
+```bash
+git clone <repo>
+cd un-sichere-login-plattform-back
+cp src/appsettings.json src/appsettings.Local.json
+# Edit appsettings.Local.json with your Azure AD credentials
+dotnet run --project src
+```
+
+## 📚 Documentation
+
+| File | Purpose | Audience |
+|------|---------|----------|
+| [**SETUP.md**](SETUP.md) | Developer onboarding & local development | 👩‍💻 Developers |
+| [**CONFIGURATION.md**](CONFIGURATION.md) | Azure AD setup & admin tasks | 👨‍💼 Administrators |
+| [**ARCHITECTURE.md**](ARCHITECTURE.md) | System design & technical overview | 🏗️ Architects |
+
+## 🏗️ API Endpoints
+
+### Authentication (`/api/auth`)
+- `POST /login` - Authenticate with Azure AD
+- `POST /register` - Create new user in Azure AD (rate limited)
+- `GET /profile` - Get current user info (requires token)
+
+### Health (`/api/health`)
+- `GET /` - Basic health check  
+- `GET /detailed` - Configuration validation
+
+## 🛡️ Security Features
+
+- **Rate Limiting**: Prevents spam registrations
+- **JWT Validation**: Stateless authentication via Azure AD
+- **No Local Secrets**: All credentials in Azure AD
+- **CORS Protection**: Configurable allowed origins
+- **Input Validation**: Request validation and sanitization
 
 ## 🏗️ Project Structure
 

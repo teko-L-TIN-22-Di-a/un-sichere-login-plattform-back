@@ -23,6 +23,10 @@ public class Startup
         // Register Azure Authentication Service
         services.AddScoped<IAzureAuthService, AzureAuthService>();
 
+        // Register Rate Limiting Service
+        services.AddSingleton<IRateLimitService, RateLimitService>();
+        services.AddMemoryCache();
+
         // Configure CORS
         services.AddCors(options =>
         {

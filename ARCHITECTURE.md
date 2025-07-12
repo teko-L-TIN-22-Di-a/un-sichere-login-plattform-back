@@ -64,22 +64,92 @@
 
 ## 🔧 Configuration Only
 
-The only configuration needed is in `appsettings.json`:
+The system requires minimal configuration through environment-specific files:
+
+### Base Configuration (`appsettings.json`)
+
+Contains no secrets - only placeholders and structure:
 
 ```json
 {
   "AzureAd": {
-    "TenantId": "YOUR_TENANT_ID",
-    "ClientId": "YOUR_CLIENT_ID",
-    "ClientSecret": "YOUR_CLIENT_SECRET"
+    "TenantId": "PLACEHOLDER_TENANT_ID",
+    "ClientId": "PLACEHOLDER_CLIENT_ID",
+    "ClientSecret": "PLACEHOLDER_CLIENT_SECRET",
+    "Domain": "PLACEHOLDER_DOMAIN"
   },
   "Authentication": {
     "JwtBearer": {
-      "Authority": "https://login.microsoftonline.com/YOUR_TENANT_ID/v2.0",
-      "Audience": "YOUR_CLIENT_ID"
+      "Authority": "https://login.microsoftonline.com/PLACEHOLDER_TENANT_ID/v2.0",
+      "Audience": "PLACEHOLDER_CLIENT_ID"
     }
+  },
+  "RateLimit": {
+    "RegistrationLimitPerHour": 5
   }
 }
 ```
 
+### Local Development (`appsettings.Local.json`)
+
+Contains actual secrets for local development (gitignored):
+
+```json
+{
+  "AzureAd": {
+    "TenantId": "your-actual-tenant-id",
+    "ClientId": "your-actual-client-id",
+    "ClientSecret": "your-actual-client-secret",
+    "Domain": "yourdomain.onmicrosoft.com"
+  }
+}
+```
+
+### Security Features
+
+- **🔒 No Secrets in Code**: All sensitive data in gitignored files
+- **🛡️ Rate Limiting**: Configurable registration limits (5/IP/hour default)
+- **🔐 Token Validation**: Direct Azure AD token validation
+- **📝 Audit Trail**: All authentication through Azure AD logs
+
+## 🛡️ Security Features
+
+### Rate Limiting
+
+- **Registration**: Max 5 registrations per IP per hour
+- **Automatic blocking**: HTTP 429 response when exceeded
+- **Headers**: `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`
+
+### Authentication & Authorization
+
+- **Stateless**: No session storage, pure JWT
+- **Azure AD Tokens**: Direct validation with Microsoft
+- **Claims-based**: User info from Azure AD claims
+- **CORS Protection**: Configurable allowed origins
+
+### User Management
+
+- **Registration**: Creates users directly in Azure AD via Microsoft Graph
+- **Login**: ROPC flow for username/password authentication
+- **Profile**: Retrieves user data from Azure AD
+- **No Local Storage**: All user data stays in Azure AD
+
+## 🏗️ API Endpoints
+
+### Authentication Controller (`/api/auth`)
+
+- `POST /login` - Authenticate user with Azure AD
+- `POST /register` - Create new user in Azure AD (rate limited)
+- `GET /profile` - Get current user profile (protected)
+
+### Health Controller (`/api/health`)
+
+- `GET /` - Basic health check
+- `GET /detailed` - Detailed health with config validation
+
 **No connection strings, no database migrations, no user tables - just pure Azure AD integration!** 🎉
+
+## 📚 Documentation
+
+- **[SETUP.md](SETUP.md)** - Developer onboarding and local development
+- **[CONFIGURATION.md](CONFIGURATION.md)** - Azure AD setup guide for administrators
