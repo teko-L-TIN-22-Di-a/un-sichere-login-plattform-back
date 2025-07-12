@@ -1,8 +1,9 @@
+using System.Text.Json.Serialization;
+
 namespace backend_api.Services;
 
-public class TokenErrorResponse
-{
-    public string? error { get; set; }
-    public string? error_description { get; set; }
-    public int[]? error_codes { get; set; }
-}
+public record TokenErrorResponse(
+    [property: JsonPropertyName("error")] string? error,
+    [property: JsonPropertyName("error_description")] string? error_description,
+    [property: JsonPropertyName("error_codes")] int[]? error_codes
+);

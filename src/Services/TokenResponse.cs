@@ -1,10 +1,11 @@
+using System.Text.Json.Serialization;
+
 namespace backend_api.Services;
 
-public class TokenResponse
-{
-    public string? access_token { get; set; }
-    public string? token_type { get; set; }
-    public int expires_in { get; set; }
-    public string? refresh_token { get; set; }
-    public string? scope { get; set; }
-}
+public record TokenResponse(
+    [property: JsonPropertyName("access_token")] string? access_token,
+    [property: JsonPropertyName("token_type")] string? token_type,
+    [property: JsonPropertyName("expires_in")] int expires_in,
+    [property: JsonPropertyName("refresh_token")] string? refresh_token,
+    [property: JsonPropertyName("scope")] string? scope
+);

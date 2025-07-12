@@ -1,11 +1,12 @@
+using System.Text.Json.Serialization;
+
 namespace backend_api.Services;
 
-public class GraphUserResponse
-{
-    public string? id { get; set; }
-    public string? displayName { get; set; }
-    public string? mail { get; set; }
-    public string? userPrincipalName { get; set; }
-    public string? givenName { get; set; }
-    public string? surname { get; set; }
-}
+public record GraphUserResponse(
+    [property: JsonPropertyName("id")] string? id,
+    [property: JsonPropertyName("displayName")] string? displayName,
+    [property: JsonPropertyName("mail")] string? mail,
+    [property: JsonPropertyName("userPrincipalName")] string? userPrincipalName,
+    [property: JsonPropertyName("givenName")] string? givenName,
+    [property: JsonPropertyName("surname")] string? surname
+);
