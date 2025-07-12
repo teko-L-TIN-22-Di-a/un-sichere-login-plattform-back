@@ -1,56 +1,196 @@
-# dotnet-backend-api
+# Azure AD Authentication Backend
 
-## Overview
-This project is a backend API built using .NET 8 that implements authentication and multi-factor authentication (MFA) following Microsoft standard practices. The API is designed to handle requests from a frontend application, process authentication tokens (from Microsoft Entra ID/Azure AD), and provide secure access to resources.
+## 🔐 Overview
 
-## Project Structure
+This project is a .NET 8 backend API that implements **Azure AD authentication** using the Resource Owner Password Credentials (ROPC) flow. The API is **completely stateless** and requires **no database** - all user data comes directly from Azure AD and Microsoft Graph.
+
+## 🏗️ Project Structure
+
 ```
-un-sichere-login-plattform-back
-├── src
-│   ├── Controllers
-│   │   └── AuthController.cs
-│   ├── Models
-│   │   └── UserModel.cs
-│   ├── Services
-│   │   └── AuthService.cs
+un-sichere-login-plattform-back/
+├── src/
+│   ├── Controllers/
+│   │   └── AuthController.cs      # Login & Profile endpoints
+│   ├── Models/
+│   │   └── UserModel.cs           # DTOs (LoginRequest, LoginResponse, UserInfo)
+│   ├── Services/
+│   │   └── AzureAuthService.cs    # Azure AD ROPC authentication
 │   ├── Program.cs
-│   └── Startup.cs
-│   └── appsettings.json
-├── un-sichere-login-plattform-back.sln
+│   ├── Startup.cs                 # JWT configuration
+│   ├── appsettings.json           # Configuration (sanitized)
+│   └── appsettings.Example.json   # Configuration template
+├── test.http                      # REST Client tests
+├── CONFIGURATION.md               # Detailed setup guide
 └── README.md
 ```
 
-## Features
-- **Authentication**: Accepts and validates JWT tokens issued by Microsoft Entra ID/Azure AD.
-- **Multi-Factor Authentication (MFA)**: Supports MFA logic for enhanced security.
-- **Swagger Integration**: The API is documented using Swagger for easy exploration and testing of endpoints.
+## ✨ Features
 
-## Setup Instructions
-1. **Clone the Repository**: 
-   ```
-   git clone <repository-url>
-   cd dotnet-backend-api
-   ```
+- **🔑 Azure AD Authentication**: ROPC flow for username/password login
+- **🛡️ JWT Token Validation**: Validates Azure AD tokens with `[Authorize]` attribute
+- **👤 Microsoft Graph Integration**: Retrieves user information from Microsoft Graph
+- **📚 Swagger Documentation**: Interactive API documentation
+- **🌐 CORS Support**: Ready for frontend integration
+- **🧪 REST Client Tests**: Easy testing with VS Code REST Client
+- **🗃️ Database-Free**: Completely stateless, no local data storage needed
 
-2. **Restore Dependencies**: 
-   ```
-   dotnet restore
-   ```
+## 🚀 Quick Start
 
-3. **Run the Application**: 
-   ```
-   dotnet run --project src/dotnet-backend-api.csproj
-   ```
+### 1. ⚠️ Configuration Required
+**This repository does NOT contain sensitive configuration data!**
 
-4. **Access Swagger UI**: Open your browser and navigate to `http://localhost:5000/swagger` (oder Port aus der Konsole) to explore the API documentation and test endpoints.
+Copy the example configuration:
+```bash
+cp src/appsettings.Example.json src/appsettings.json
+```
 
-## Usage Guidelines
-- Use the `/login` endpoint to authenticate users and receive a token (if local login).
-- For Microsoft login: Obtain a JWT from Microsoft Entra ID/Azure AD in the frontend and send it in the `Authorization` header (`Bearer <token>`) for protected endpoints.
-- For MFA, follow the instructions provided during the login process to complete authentication.
+Then follow the detailed setup guide in [`CONFIGURATION.md`](CONFIGURATION.md) to:
+- Set up Azure AD App Registration
+- Configure authentication settings
+- Create test users
 
-## Contributing
-Contributions are welcome! Please submit a pull request or open an issue for any enhancements or bug fixes.
+### 2. Install Dependencies
+```bash
+dotnet restore
+```
 
-## License
-This project is licensed under the MIT License. See the LICENSE file for more details.
+### 3. Run the Application
+```bash
+cd src
+dotnet run
+```
+
+### 4. Test with REST Client
+Use the provided `test.http` file with the REST Client extension in VS Code:
+```http
+POST http://localhost:5000/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "demo@YOURDOMAIN.onmicrosoft.com",
+  "password": "YourPassword123!"
+}
+```
+
+## 🔧 API Endpoints
+
+### POST `/api/auth/login`
+Authenticates user against Azure AD and returns access token.
+
+**Request:**
+```json
+{
+  "username": "user@domain.com",
+  "password": "password123"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "accessToken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6...",
+  "message": "Authentication successful",
+  "userInfo": {
+    "id": "user-guid",
+    "displayName": "Demo User",
+    "email": "user@domain.com",
+    "userPrincipalName": "user@domain.com"
+  }
+}
+```
+
+### GET `/api/auth/profile`
+Protected endpoint that requires Azure AD token.
+
+**Headers:**
+```
+Authorization: Bearer <azure-ad-token>
+```
+
+## 🛠️ Configuration
+
+### Required Settings
+
+Create `src/appsettings.json` with your Azure AD configuration:
+
+```json
+{
+  "Authentication": {
+    "JwtBearer": {      
+      "Authority": "https://login.microsoftonline.com/YOUR_TENANT_ID/v2.0",
+      "Audience": "YOUR_CLIENT_ID"
+    }
+  },
+  "AzureAd": {
+    "TenantId": "YOUR_TENANT_ID",
+    "ClientId": "YOUR_CLIENT_ID", 
+    "ClientSecret": "YOUR_CLIENT_SECRET",
+    "Scope": "https://graph.microsoft.com/.default"
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*"
+}
+```
+
+> **✅ No Database Required**: This application is completely stateless and requires no database setup. All user data comes directly from Azure AD and Microsoft Graph.
+
+### Environment Variables (Production)
+```bash
+export AzureAd__TenantId="YOUR_TENANT_ID"
+export AzureAd__ClientId="YOUR_CLIENT_ID"
+export AzureAd__ClientSecret="YOUR_CLIENT_SECRET"
+```
+
+## 🔒 Security
+
+### ⚠️ Never commit sensitive data:
+- ❌ Tenant IDs
+- ❌ Client IDs  
+- ❌ Client Secrets
+- ❌ User passwords
+
+### ✅ Use instead:
+- Environment variables
+- Azure Key Vault
+- Local configuration files (in .gitignore)
+
+## 📖 Documentation
+
+For detailed setup instructions, troubleshooting, and Azure AD configuration, see:
+
+- **[CONFIGURATION.md](CONFIGURATION.md)** - Complete setup guide
+- **[ARCHITECTURE.md](ARCHITECTURE.md)** - Database-free architecture overview
+- **[Swagger UI](http://localhost:5000/swagger)** - Interactive API documentation (when running)
+
+## 🧪 Testing
+
+### With REST Client (VS Code)
+Install the REST Client extension and use `test.http`.
+
+### With cURL
+```bash
+# Login
+curl -X POST http://localhost:5000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"user@domain.com","password":"password123"}'
+
+# Profile (replace TOKEN with actual token)
+curl -X GET http://localhost:5000/api/auth/profile \
+  -H "Authorization: Bearer TOKEN"
+```
+
+## 🤝 Contributing
+Contributions are welcome! Please ensure you:
+1. Don't commit sensitive configuration data
+2. Follow the existing code style
+3. Add appropriate tests
+4. Update documentation
+
+## 📄 License
+This project is licensed under the MIT License.

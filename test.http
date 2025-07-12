@@ -1,0 +1,25 @@
+### Login Test
+POST http://localhost:5000/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "demo@YOURDOMAIN.onmicrosoft.com",
+  "password": "YourPassword123!"
+}
+
+### Profile Test (requires token from login)
+GET http://localhost:5000/api/auth/profile
+Authorization: Bearer {{token}}
+
+### Variables
+@token = YOUR_TOKEN_HERE
+@baseUrl = http://localhost:5000
+
+### Example with real credentials (DO NOT COMMIT WITH REAL DATA!)
+# POST http://localhost:5000/api/auth/login
+# Content-Type: application/json
+# 
+# {
+#   "username": "your-actual-username@yourdomain.onmicrosoft.com",
+#   "password": "your-actual-password"
+# }

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.OpenApi.Models;
+using backend_api.Services;
 
 public class Startup
 {
@@ -16,6 +17,24 @@ public class Startup
     {
         services.AddControllers();
 
+        // Add HttpClient for Azure AD authentication
+        services.AddHttpClient<IAzureAuthService, AzureAuthService>();
+
+        // Register Azure Authentication Service
+        services.AddScoped<IAzureAuthService, AzureAuthService>();
+
+        // Configure CORS
+        services.AddCors(options =>
+        {
+            options.AddPolicy("AllowFrontend", builder =>
+            {
+                builder.WithOrigins("http://localhost:3000", "https://localhost:3000") // Adjust to your frontend URL
+                       .AllowAnyHeader()
+                       .AllowAnyMethod()
+                       .AllowCredentials();
+            });
+        });
+
         var jwtSection = Configuration.GetSection("Authentication:JwtBearer");
         var authority = jwtSection.GetValue<string>("Authority");
         var audience = jwtSection.GetValue<string>("Audience");
@@ -25,11 +44,44 @@ public class Startup
             {
                 options.Authority = authority;
                 options.Audience = audience;
+                options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ClockSkew = TimeSpan.Zero
+                };
             });
 
         services.AddSwaggerGen(c =>
         {
             c.SwaggerDoc("v1", new OpenApiInfo { Title = "backend-api", Version = "v1" });
+            
+            // Add JWT authentication to Swagger
+            c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            {
+                Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+                Name = "Authorization",
+                In = ParameterLocation.Header,
+                Type = SecuritySchemeType.ApiKey,
+                Scheme = "Bearer"
+            });
+
+            c.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                    },
+                    new string[] { }
+                }
+            });
         });
     }
 
@@ -41,6 +93,9 @@ public class Startup
         }
 
         app.UseRouting();
+
+        // Use CORS before authentication
+        app.UseCors("AllowFrontend");
 
         app.UseAuthentication();
         app.UseAuthorization();
