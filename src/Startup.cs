@@ -32,7 +32,7 @@ public class Startup
         {
             options.AddPolicy("AllowFrontend", builder =>
             {
-                builder.WithOrigins("*", "http://localhost:4200", "https://localhost:4200") // Adjust to your frontend URL
+                builder.WithOrigins("https://mango-rock-00535d503.2.azurestaticapps.net", "http://localhost:4200", "https://localhost:4200") // Adjust to your frontend URL
                        .AllowAnyHeader()
                        .AllowAnyMethod()
                        .AllowCredentials();
