@@ -69,7 +69,7 @@ public class AuthController : ControllerBase
     /// <param name="request">Registration details</param>
     /// <returns>Registration result</returns>
     [HttpPost("register")]
-    [RateLimit(maxRequests: 5, windowHours: 1, action: "register")]
+    // [RateLimit(maxRequests: 5, windowHours: 1, action: "register")]
     [ProducesResponseType(typeof(RegisterResponse), 200)]
     [ProducesResponseType(typeof(RegisterResponse), 400)]
     [ProducesResponseType(typeof(RegisterResponse), 409)]

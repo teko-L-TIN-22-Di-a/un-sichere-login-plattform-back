@@ -32,7 +32,7 @@ public class Startup
         {
             options.AddPolicy("AllowFrontend", builder =>
             {
-                builder.WithOrigins("http://localhost:3000", "https://localhost:3000") // Adjust to your frontend URL
+                builder.WithOrigins("*", "http://localhost:4200", "https://localhost:4200") // Adjust to your frontend URL
                        .AllowAnyHeader()
                        .AllowAnyMethod()
                        .AllowCredentials();
