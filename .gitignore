@@ -1,0 +1,44 @@
+# .NET & Visual Studio
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+*.dbmdl
+*.pdb
+*.cache
+*.log
+*.ncb
+*.opendb
+*.VC.db
+*.vscode/
+TestResults/
+*.TestResults/
+*.publish/
+*.swp
+
+# OS generated
+.DS_Store
+Thumbs.db
+
+# Rider
+.idea/
+
+# NuGet
+*.nupkg
+.nuget/
+packages/
+project.lock.json
+project.fragment.lock.json
+
+# Others
+*.local.json
+appsettings.Development.json
+appsettings.Local.json
+appsettings.Production.json
+.env
+
+# NEVER COMMIT THESE SECRET FILES!
+# Use appsettings.Local.json for your real credentials

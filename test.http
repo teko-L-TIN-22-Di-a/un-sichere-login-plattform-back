@@ -1,0 +1,57 @@
+### Login Test
+POST http://localhost:5000/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "demo@demotekoprojektoutlook.onmicrosoft.com",
+  "password": "123globia123!"
+}
+
+### Register Test
+POST http://localhost:5000/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "testusesr2",
+  "email": "testusesr2@example.com",
+  "password": "SecurePassword123!",
+  "displayName": "Test User 2",
+  "firstName": "Test",
+  "lastName": "User"
+}
+
+### Register Test - Rate Limit Test (run this 6 times quickly to test limit of 5)
+POST http://localhost:5000/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "testuser3",
+  "email": "testuser3@example.com",
+  "password": "SecurePassword123!",
+  "displayName": "Test User 3",
+  "firstName": "Test",
+  "lastName": "User"
+}
+
+### Health Check
+GET http://localhost:5000/api/health
+
+### Detailed Health Check
+GET http://localhost:5000/api/health/detailed
+
+### Profile Test (requires token from login)
+GET http://localhost:5000/api/auth/profile
+Authorization: Bearer {{token}}
+
+### Variables
+@token = YOUR_TOKEN_HERE
+@baseUrl = http://localhost:5000
+
+### Example with real credentials (DO NOT COMMIT WITH REAL DATA!)
+# POST http://localhost:5000/api/auth/login
+# Content-Type: application/json
+# 
+# {
+#   "username": "your-actual-username@yourdomain.onmicrosoft.com",
+#   "password": "your-actual-password"
+# }
